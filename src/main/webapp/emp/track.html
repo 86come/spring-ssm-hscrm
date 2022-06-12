@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        table {
+            width: 100%;
+            margin: 10px;
+        }
+        
+        table th {
+            text-align: center;
+        }
+        
+        table td {
+            text-align: center;
+        }
+        
+        a {
+            display: inline-block;
+            text-emphasis: none;
+            color: orange;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div class="main_right_top2">
+        <i class="fa fa-search" aria-hidden="true"></i> 查询结果
+        <div class="top2_in">
+            <input type="submit" class="input03" value="删除选中">
+            <a href="${pageContext.request.contextPath}/customer/insertCustomer.jsp"><input type="button" class="input04" value="添加客户"></a> <br>
+        </div>
+    </div> -->
+
+    <a id="aadd" href="">添加跟踪信息</a>
+
+
+    <h1>跟踪信息</h1>
+    <table align="center" cellspacing="0">
+        <tr style="font-weight:bolder; background-color: orange;">
+<!--            <th><input type="checkbox"></th>-->
+            <th>信息编号</th>
+            <th>客户姓名</th>
+            <th>员工姓名</th>
+            <th>跟踪记录</th>
+            <th>意向</th>
+            <th>操作</th>
+        </tr>
+    </table>
+
+    <script src="../js/jquery-3.6.0.js"></script>
+
+    <script>
+        // var token = localStorage.getItem("token");
+
+        var url = location.href;
+        // alert(url);
+        var eid = url.substring(url.lastIndexOf("=") + 1);
+        // alert(eid);
+
+        var a = document.getElementById("aadd");
+        a.href = 'addTrack.html?eid='+eid;
+
+        $.ajax({
+            // headers: {
+            //     token: token
+            // },
+            //同步请求
+            async: false,
+            url: "/tra",
+            // data: {
+            //     action: "selectall"
+            // },
+            type: "get",
+            success: function(respTxt) {
+                var tracks = respTxt.data;
+                if (tracks.size != 0) {
+                    for (var tk of tracks) {
+                        var tr = $("<tr></tr>");
+
+                        // var td0 = $("<td><input type='checkbox'></td>");
+                        var td1 = $("<td>" + tk.tid + "</td>");
+                        var td2 = $("<td>" + tk.customer.cname + "</td>");
+                        var td3 = $("<td>" + tk.emp.ename + "</td>");
+                        var td4 = $("<td>" + tk.record + "</td>");
+                        var td5 = $("<td>" + tk.intention + "</td>");
+                        var td6 = $("<td><span style='margin-left:10px;' class='sc'>删除</span><span style='margin-left:10px;' class='xg'>修改</span> </td>");
+
+
+                        // tr.append(td0);
+                        tr.append(td1);
+                        tr.append(td2);
+                        tr.append(td3);
+                        tr.append(td4);
+                        tr.append(td5);
+                        tr.append(td6);
+
+                        $("table").append(tr);
+                    }
+                }
+            }
+        });
+
+        //删除操作
+        // $(".sc").click(function() {
+        $("table").on("click",".sc",function () {
+            var flag = window.confirm("你确定要删除这条数据吗？");
+            if (!flag) {
+                return;
+            }
+
+            //删除
+            //获取值
+            // var td1 = $(this).parent().prevAll().last().next();
+            var td1 = $(this).parent().prevAll().last();
+            var tid = td1.html();
+            //alert(tid);
+
+            $.ajax({
+                // headers: {
+                //     token: token
+                // },
+                url: "/tra/"+tid,
+                type: "post",
+                data: {
+                    _method: "delete",
+                },
+                success: function(respTxt) {
+                    if (respTxt.data == 1) {
+                        alert("删除成功！");
+                        //页面中移除这一行
+                        var tr = td1.parent();
+                        tr.remove();
+                    } else {
+                        alert("删除失败！");
+                    }
+                }
+            });
+        });
+
+
+        // 修改操作
+        // $(".xg").click(function() {
+        $("table").on("click",".xg",function () {
+            // var td1 = $(this).parent().prevAll().last().next();
+            var td1 = $(this).parent().prevAll().last();
+            var tid = td1.html();
+            //alert(tid);
+            location.href = "updateTrack.html?tid=" + tid;
+        });
+    </script>
+
+</body>
+
+</html>
